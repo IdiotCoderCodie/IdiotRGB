@@ -28,7 +28,7 @@ namespace SampleApp
             Console.WriteLine("Max LED zones supported: " + maxDivision);
 
             byte[] ledLayout = new byte[maxDivision];
-            result = RGBFusionSDK.GetLedLayout(ledLayout, maxDivision);
+            result = RGBFusionSDK.GetLedLayout(ledLayout, ledLayout.Length);
 
             RGBFusionSDK.LedSetting[] nullAllSettings = new RGBFusionSDK.LedSetting[maxDivision];
             for (var i = 0; i < nullAllSettings.Length; i++)
@@ -40,7 +40,7 @@ namespace SampleApp
 
             for(var i = 0; i < ledSettings.Length; i++)
             {
-                ledSettings[i].m_LedMode = 5;
+                ledSettings[i].m_LedMode = (byte)RGBFusionSDK.LedMode.Flash;
                 ledSettings[i].m_MaxBrightness = 100;
                 ledSettings[i].m_MinBrightness = 0;
                 ledSettings[i].m_Colour = 0xFFFFFFFF;
@@ -49,6 +49,9 @@ namespace SampleApp
                 ledSettings[i].m_Time2 = 700 * 50;
                 ledSettings[i].m_CtrlVal0 = 50;
             }
+
+            result = RGBFusionSDK.SetLedData(nullAllSettings);
+            result = RGBFusionSDK.Apply(-1);
 
             Console.WriteLine();
             Console.WriteLine("IDENTIFYING ZONES");
