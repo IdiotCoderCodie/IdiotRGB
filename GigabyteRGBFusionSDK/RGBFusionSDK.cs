@@ -32,6 +32,8 @@ namespace GigabyteRGBFusionSDKWrapper
         /// <summary>
         /// Defines the mode values used to set <c>LedSetting::m_LedMode</c>.
         /// </summary>
+        /// <remarks>DigitalModeX values are reserved for DigitalLED1 and DigitalLED2 LedTypes
+        /// </remarks>
         public enum LedMode
         {
             Null = 0,
@@ -50,6 +52,21 @@ namespace GigabyteRGBFusionSDKWrapper
             DigitalModeG = 16,
             DigitalModeH = 17,
             DigitalModeI = 18
+        }
+
+        /// <summary>
+        /// Defines the Led type returned by GetLedLayout().
+        /// </summary>
+        /// <remarks>
+        /// DigitalLED1 supports DigitalModes: A, B, E
+        /// DigitalLED2 supports DigitalModes: A, B, C, D, F, G, H, I
+        /// </remarks>
+        public enum LedType
+        {
+            NoLED = 0,
+            AnalogLED = 1,
+            DigitalLED1 = 2, // Audio Shield
+            DigitalLED2 // LED Strip
         }
 
         [DllImport("GLedApi ", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
@@ -128,14 +145,23 @@ namespace GigabyteRGBFusionSDKWrapper
         [DllImport("GLedApi ", EntryPoint = "dllexp_IT8295_Reset", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         public static extern uint Reset();
 
-        // TODO: Add better wrapper round this. Don't need to specify arraySize.
+        [DllImport("GLedApi ", EntryPoint = "dllexp_Get_IT8295_FwVer", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        private static extern uint dllexp_Get_IT8295_FirmwareVersion(byte[] array, int arraySize);
         /// <summary>
-        /// Call this API to get the MCU firmware version.
+        /// Call this API to get the string of the MCU firmware version.
         /// </summary>
-        /// <param name="array">Byte array that receives the firmware version.</param>
-        /// <param name="arraySize">Size in bytes of the array.</param>
-        /// <returns></returns>
-        [DllImport("GLedApi ", EntryPoint = "dllexp_IT8295_FwVer", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern uint FirmwareVersion(byte[] array, int arraySize);
+        /// <returns>The MCU firmware version as a string.</returns>
+        public static string FirmwareVersion()
+        {
+            string returnStr = "";
+            byte[] firmwareBytes = new byte[4];
+            if (dllexp_Get_IT8295_FirmwareVersion(firmwareBytes, firmwareBytes.Length) == 0)
+            {
+                returnStr += firmwareBytes[3] + "." + firmwareBytes[2] + "." + firmwareBytes[1] + "." + firmwareBytes[0];
+                return returnStr;
+            }
+
+            return returnStr;
+        }
     }
 }

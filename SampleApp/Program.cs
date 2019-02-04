@@ -23,12 +23,22 @@ namespace SampleApp
             }
 
             Console.WriteLine("Successfully Initialized RGB Fusion SDK");
+            string firmwareStr = RGBFusionSDK.FirmwareVersion();
+            Console.WriteLine("RGB Fusion MCU Firmware Version: " + firmwareStr);
 
             int maxDivision = RGBFusionSDK.GetMaxDivision();
             Console.WriteLine("Max LED zones supported: " + maxDivision);
 
             byte[] ledLayout = new byte[maxDivision];
             result = RGBFusionSDK.GetLedLayout(ledLayout, ledLayout.Length);
+
+            var li = 0;
+            foreach(var led in ledLayout)
+            {
+                RGBFusionSDK.LedType ledType = (RGBFusionSDK.LedType)led;
+                Console.WriteLine("Zone " + li + " Led: " + ledType.ToString());
+                ++li;
+            }
 
             RGBFusionSDK.LedSetting[] nullAllSettings = new RGBFusionSDK.LedSetting[maxDivision];
             for (var i = 0; i < nullAllSettings.Length; i++)
