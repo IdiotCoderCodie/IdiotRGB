@@ -111,11 +111,20 @@ namespace SampleApp
 
             if (vgafound)
             {
+                // Not working correctly?
                 byte[] vgaNameByteArray = new byte[256];
-                RGBFusionSDK.GvLedGetVgaModelName(vgaNameByteArray);
+                RGBFusionSDK.GvLedGetVgaModelName(out vgaNameByteArray);
                 string converted = Encoding.UTF8.GetString(vgaNameByteArray, 0, vgaNameByteArray.Length);
                 Console.WriteLine("VGA Name: {0}", converted);
             }
+
+            RGBFusionSDK.GVLED_CFG config = new RGBFusionSDK.GVLED_CFG();
+            config.on = true;
+            config.color = 0x000000FF;
+            config.type = RGBFusionSDK.GVLED_LEDType.Pulsing;
+            config.maxBright = 10;
+            config.minBright = 10;
+            RGBFusionSDK.GvLedSave(-1, config);
         }
     }
 }

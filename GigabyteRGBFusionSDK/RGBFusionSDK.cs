@@ -164,7 +164,8 @@ namespace GigabyteRGBFusionSDKWrapper
             return returnStr;
         }
 
-
+        
+        // TODO: Split up GvLedLib and GLedApi bits
         // ---------------------------------------------
         // Motherboard & Peripherals SDK (GvLedLib.dll)
         // ---------------------------------------------
@@ -187,7 +188,36 @@ namespace GigabyteRGBFusionSDKWrapper
             GVLED_ATC700_CPU_COOLER         = 0x4009,
             GVLED_0x400A_AORUS_P7_MOUSEPAD  = 0x400A,
             GVLED_MOTHERBOARD               = 0x5001
-        };
+        }
+
+        public enum GVLED_LEDType
+        {
+            Consistent = 1,
+            Pulsing = 2,
+            GingleFlash = 3,
+            DualFlash = 4,
+            Cycling = 5,
+            Ripple = 6,
+            Reactive = 7,
+            Wave = 8,
+            Running = 9,
+            RealTime = 20
+        }
+
+        public struct GVLED_CFG
+        {
+            public GVLED_LEDType type;
+            public int speed;          // 1 - 10
+            public uint time1;         // ms
+            public uint time2;         // ms
+            public uint time3;         // ms
+            public int minBright;      // 1 - 10
+            public int maxBright;      // 1 - 10
+            public uint color;         // 0x00RRGGBB
+            public int angle;          // 1 - 360
+            public bool on;
+            public bool sync;
+        }
 
         [DllImport("GvLedLib.dll", EntryPoint = "dllexp_GvLedInitial", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         public static extern uint GvLedInitialize(out int deviceCount, int[] deviceArray);
@@ -195,8 +225,16 @@ namespace GigabyteRGBFusionSDKWrapper
         [DllImport("GvLedLib.dll", EntryPoint = "dllexp_GvLedGetVersion", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
         public static extern uint GvLedGetSDKVersion(out int majorVersion, out int minorVersion);
 
+        // TODO: Implement GvLedSave and GvLedSet (not sure what the difference is, they both have the same signature)
+        // Need to define the GVLED_CONFIG struct first
+        [DllImport("GvLedLib.dll", EntryPoint = "dllexp_GvLedSave", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        public static extern uint GvLedSave(int index, GVLED_CFG config);
+
+        [DllImport("GvLedLib.dll", EntryPoint = "dllexp_GvLedSet", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        public static extern uint GvLedSet(int index, GVLED_CFG config);
+
         [DllImport("GvLedLib.dll", EntryPoint = "dllexp_GvLedGetVgaModelName", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-        public static extern uint GvLedGetVgaModelName(byte[] array);
+        public static extern uint GvLedGetVgaModelName(out byte[] array);
 
     }
 }
