@@ -163,5 +163,40 @@ namespace GigabyteRGBFusionSDKWrapper
 
             return returnStr;
         }
+
+
+        // ---------------------------------------------
+        // Motherboard & Peripherals SDK (GvLedLib.dll)
+        // ---------------------------------------------
+        public enum GVLED_DeviceID
+        {
+            GVLED_VGA                       = 0x1001,
+            GVLED_XK700_KEYB                = 0x2001,
+            GVLED_AORUS_K7_KEYB             = 0x2002,
+            GVLED_AORUS_K9_KEYB             = 0x2003,
+            GVLED_XM300_MOUSE               = 0x3001,
+            GVLED_AORUS_M3_MOUSE            = 0x3002,
+            GVLED_1070IXEB_GAMING_VGA_BOX   = 0x4001,
+            GVLED_1080IXEB_GAMING_VGA_BOX   = 0x4002,
+            GVLED_XTV700_CASE               = 0x4003,
+            GVLED_XC300W_CASE               = 0x4004,
+            GVLED_XC700W_CASE               = 0x4005,
+            GVLED_XH300_EARPHONE            = 0x4006,
+            GVLED_AORUS_H5_EARPHONE         = 0x4007,
+            GVLED_AC300W_CASE               = 0x4008,
+            GVLED_ATC700_CPU_COOLER         = 0x4009,
+            GVLED_0x400A_AORUS_P7_MOUSEPAD  = 0x400A,
+            GVLED_MOTHERBOARD               = 0x5001
+        };
+
+        [DllImport("GvLedLib.dll", EntryPoint = "dllexp_GvLedInitial", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        public static extern uint GvLedInitialize(out int deviceCount, int[] deviceArray);
+
+        [DllImport("GvLedLib.dll", EntryPoint = "dllexp_GvLedGetVersion", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        public static extern uint GvLedGetSDKVersion(out int majorVersion, out int minorVersion);
+
+        [DllImport("GvLedLib.dll", EntryPoint = "dllexp_GvLedGetVgaModelName", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
+        public static extern uint GvLedGetVgaModelName(byte[] array);
+
     }
 }

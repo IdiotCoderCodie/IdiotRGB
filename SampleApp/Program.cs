@@ -8,7 +8,7 @@ namespace SampleApp
 {
     class Program
     {
-        static void Main(string[] args)
+        static void MotherboardControlAPI()
         {
             string rgbFusionSDKVer = "";
             RGBFusionSDK.GetSdkVersion(out rgbFusionSDKVer);
@@ -17,7 +17,8 @@ namespace SampleApp
 
             uint result = RGBFusionSDK.InitAPI();
 
-            if (result != 0u) {
+            if (result != 0u)
+            {
                 Console.WriteLine("Failed to Intialize RGB Fusion SDK");
                 return;
             }
@@ -33,7 +34,7 @@ namespace SampleApp
             result = RGBFusionSDK.GetLedLayout(ledLayout, ledLayout.Length);
 
             var li = 0;
-            foreach(var led in ledLayout)
+            foreach (var led in ledLayout)
             {
                 RGBFusionSDK.LedType ledType = (RGBFusionSDK.LedType)led;
                 Console.WriteLine("Zone " + li + " Led: " + ledType.ToString());
@@ -48,7 +49,7 @@ namespace SampleApp
 
             RGBFusionSDK.LedSetting[] ledSettings = new RGBFusionSDK.LedSetting[maxDivision];
 
-            for(var i = 0; i < ledSettings.Length; i++)
+            for (var i = 0; i < ledSettings.Length; i++)
             {
                 ledSettings[i].m_LedMode = (byte)RGBFusionSDK.LedMode.Flash;
                 ledSettings[i].m_MaxBrightness = 100;
@@ -75,6 +76,45 @@ namespace SampleApp
                 Console.ReadKey();
                 result = RGBFusionSDK.SetLedData(nullAllSettings);
                 result = RGBFusionSDK.Apply(-1);
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            // Trying to get VGA & Peripherals LED Control API working (GvLedLib.dll)
+            int deviceCount = 0;
+            int[] deviceArray = new int[128];
+            try
+            {
+                RGBFusionSDK.GvLedInitialize(out deviceCount, deviceArray);
+                int major = 0, minor = 0;
+                RGBFusionSDK.GvLedGetSDKVersion(out major, out minor);
+
+                Console.WriteLine("GvLedLib.dll Version: " + major + "." + minor);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
+
+            bool vgafound = false;
+            Console.WriteLine("{0} VGA/Peripherals found", deviceCount);
+            for (int i = 0; i < deviceCount; ++i)
+            {
+                RGBFusionSDK.GVLED_DeviceID id = (RGBFusionSDK.GVLED_DeviceID)deviceArray[i];
+                Console.WriteLine("Device #{0}: ", id.ToString());
+
+                if (id == RGBFusionSDK.GVLED_DeviceID.GVLED_VGA)
+                    vgafound = true;
+            }
+
+            if (vgafound)
+            {
+                byte[] vgaNameByteArray = new byte[256];
+                RGBFusionSDK.GvLedGetVgaModelName(vgaNameByteArray);
+                string converted = Encoding.UTF8.GetString(vgaNameByteArray, 0, vgaNameByteArray.Length);
+                Console.WriteLine("VGA Name: {0}", converted);
             }
         }
     }
