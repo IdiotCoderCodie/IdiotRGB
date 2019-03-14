@@ -81,7 +81,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RGBFusionSDK.cs" />
+    <Compile Include="Motherboard\GLedImpl.cs" />
+    <Compile Include="Peripherals\GvLedImpl.cs" />
+    <Compile Include="Peripherals\IGvLed.cs" />
+    <Compile Include="Motherboard\IGLed.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -124,7 +127,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>GvLedLib.dll</TargetPath>
     </ContentWithTargetPath>
-	<ContentWithTargetPath Include="GigabyteRGBFusionDLLs\Peripherals\GvIllumLib.dll">
+    <ContentWithTargetPath Include="GigabyteRGBFusionDLLs\Peripherals\GvIllumLib.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>GvIllumLib.dll</TargetPath>
     </ContentWithTargetPath>
