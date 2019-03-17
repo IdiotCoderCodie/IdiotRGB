@@ -41,6 +41,7 @@ namespace GigabyteRGBFusionSDK.Peripherals
     RealTime      = 20
   }
 
+  [Serializable()]
   public struct GvLedConfig
   {
     public GvLedType type;

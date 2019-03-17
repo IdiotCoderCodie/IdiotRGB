@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using GigabyteRGBFusionSDK;
 using GigabyteRGBFusionSDK.Motherboard;
 using GigabyteRGBFusionSDK.Peripherals;
+using System.IO;
+using System.Xml.Serialization;
+
 namespace SampleApp
 {
   class Program
@@ -124,14 +127,40 @@ namespace SampleApp
         Console.WriteLine("VGA Name: {0}", str);
       }
 
-      GvLedConfig config = new GvLedConfig();
-      config.on = true;
-      config.color = 0x0000FF00;
-      config.type = GvLedType.Pulsing;
-      config.maxBright = 10;
-      config.minBright = 10;
-      config.time1 = 100;
-      config.time2 = 200;
+      // TODO: Following could fail in multiple places, so make it safe.
+      GvLedConfig config;
+      XmlSerializer xmlSerializer = new XmlSerializer(typeof(GvLedConfig));
+
+      string outputDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "//IdiotRGB//RGBFusion//Peripherals";
+      if (!Directory.Exists(outputDir))
+      {
+        var info = Directory.CreateDirectory(outputDir);
+      }
+
+      var path = outputDir + "//GvLedType_SampleTest.xml";
+      if(!File.Exists(path))
+      {
+        config = new GvLedConfig();
+        config.on = true;
+        config.color = 0x0000FF00;
+        config.type = GvLedType.Pulsing;
+        config.maxBright = 10;
+        config.minBright = 10;
+        config.time1 = 100;
+        config.time2 = 200;
+
+        FileStream outFile = File.Create(path);
+        xmlSerializer.Serialize(outFile, config);
+        outFile.Close();
+      }
+      else
+      {
+        // Read.
+        FileStream inFile = File.OpenRead(path);
+        config = (GvLedConfig)xmlSerializer.Deserialize(inFile);
+        inFile.Close();
+      }
+
       peripherals.Save(-1, config);
     }
 
