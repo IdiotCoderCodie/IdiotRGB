@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GigabyteRGBFusionSDK;
+using GigabyteRGBFusionSDK.Motherboard;
+using GigabyteRGBFusionSDK.Peripherals;
 namespace SampleApp
 {
   class Program
@@ -37,22 +39,22 @@ namespace SampleApp
       var li = 0;
       foreach (var led in ledLayout)
       {
-        IGLed.LedType ledType = (IGLed.LedType)led;
+        GLedType ledType = (GLedType)led;
         Console.WriteLine("Zone " + li + " Led: " + ledType.ToString());
         ++li;
       }
 
-      IGLed.LedSetting[] nullAllSettings = new IGLed.LedSetting[maxDivision];
+      GLedSetting[] nullAllSettings = new GLedSetting[maxDivision];
       for (var i = 0; i < nullAllSettings.Length; i++)
       {
         nullAllSettings[i].m_LedMode = 0;
       }
 
-      IGLed.LedSetting[] ledSettings = new IGLed.LedSetting[maxDivision];
+      GLedSetting[] ledSettings = new GLedSetting[maxDivision];
 
       for (var i = 0; i < ledSettings.Length; i++)
       {
-        ledSettings[i].m_LedMode = (byte)IGLed.LedMode.Flash;
+        ledSettings[i].m_LedMode = (byte)GLedMode.Flash;
         ledSettings[i].m_MaxBrightness = 100;
         ledSettings[i].m_MinBrightness = 0;
         ledSettings[i].m_Colour = 0xFFFFFFFF;
@@ -105,10 +107,10 @@ namespace SampleApp
       Console.WriteLine("{0} VGA/Peripherals found", deviceCount);
       for (int i = 0; i < deviceCount; ++i)
       {
-        IGvLed.GVLED_DeviceID id = (IGvLed.GVLED_DeviceID)deviceArray[i];
+        GvDeviceID id = (GvDeviceID)deviceArray[i];
         Console.WriteLine("Device #{0}: ", id.ToString());
 
-        if (id == IGvLed.GVLED_DeviceID.GVLED_VGA)
+        if (id == GvDeviceID.GVLED_VGA)
           vgafound = true;
       }
 
@@ -122,12 +124,14 @@ namespace SampleApp
         Console.WriteLine("VGA Name: {0}", str);
       }
 
-      IGvLed.GVLED_CFG config = new IGvLed.GVLED_CFG();
+      GvLedConfig config = new GvLedConfig();
       config.on = true;
-      config.color = 0x000000FF;
-      config.type = IGvLed.GVLED_LEDType.Pulsing;
+      config.color = 0x0000FF00;
+      config.type = GvLedType.Pulsing;
       config.maxBright = 10;
       config.minBright = 10;
+      config.time1 = 100;
+      config.time2 = 200;
       peripherals.Save(-1, config);
     }
 
@@ -136,6 +140,7 @@ namespace SampleApp
       PeripheralsAPI();
 
       //MotherboardControlAPI();
+      Console.ReadKey();
     }
   }
 }

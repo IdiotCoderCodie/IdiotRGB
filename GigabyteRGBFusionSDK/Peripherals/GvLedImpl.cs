@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GigabyteRGBFusionSDK
+namespace GigabyteRGBFusionSDK.Peripherals
 {
   public class GvLedImpl : IGvLed
   {
@@ -24,15 +24,15 @@ namespace GigabyteRGBFusionSDK
     }
 
     [DllImport("GvLedLib.dll", EntryPoint = "dllexp_GvLedSave", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-    public static extern uint dllexp_GvLedSave(int index, GVLED_CFG config);
-    public override uint Save(int index, GVLED_CFG config)
+    public static extern uint dllexp_GvLedSave(int index, GvLedConfig config);
+    public override uint Save(int index, GvLedConfig config)
     {
       return dllexp_GvLedSave(index, config);
     }
 
     [DllImport("GvLedLib.dll", EntryPoint = "dllexp_GvLedSet", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-    public static extern uint dllexp_GvLedSet(int index, GVLED_CFG config);
-    public override uint Set(int index, GVLED_CFG config)
+    public static extern uint dllexp_GvLedSet(int index, GvLedConfig config);
+    public override uint Set(int index, GvLedConfig config)
     {
       return dllexp_GvLedSet(index, config);
     }

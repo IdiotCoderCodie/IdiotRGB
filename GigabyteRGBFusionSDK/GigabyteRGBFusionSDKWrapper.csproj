@@ -82,7 +82,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Motherboard\GLedImpl.cs" />
+    <Compile Include="Motherboard\GLedTypes.cs" />
     <Compile Include="Peripherals\GvLedImpl.cs" />
+    <Compile Include="Peripherals\GvLedTypes.cs" />
     <Compile Include="Peripherals\IGvLed.cs" />
     <Compile Include="Motherboard\IGLed.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

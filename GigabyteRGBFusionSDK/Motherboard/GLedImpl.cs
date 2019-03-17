@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GigabyteRGBFusionSDK
+namespace GigabyteRGBFusionSDK.Motherboard
 {
   /// <summary>
   /// Implements the IGLed interface, importing API from GLedLib.dll.
@@ -44,8 +44,8 @@ namespace GigabyteRGBFusionSDK
     }
 
     [DllImport("GLedApi ", EntryPoint = "dllexp_SetLedData", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-    private static extern uint dllexp_SetLedData(LedSetting[] setting, int arraySize);
-    public override uint SetLedData(LedSetting[] settingData)
+    private static extern uint dllexp_SetLedData(GLedSetting[] setting, int arraySize);
+    public override uint SetLedData(GLedSetting[] settingData)
     {
       return dllexp_SetLedData(settingData, Marshal.SizeOf(settingData[0]) * settingData.Length);
     }
