@@ -153,15 +153,27 @@ namespace SampleApp
         xmlSerializer.Serialize(outFile, config);
         outFile.Close();
       }
-      else
+
+      var lastRead = System.DateTime.Now;
+
+      while(true)
       {
         // Read.
         FileStream inFile = File.OpenRead(path);
         config = (GvLedConfig)xmlSerializer.Deserialize(inFile);
         inFile.Close();
+
+        Console.WriteLine("Applying Config to VGA...");
+        peripherals.Save(-1, config);
+
+        Console.WriteLine("Press X to exit or any other key to reload xml");
+        var keyInfo = Console.ReadKey();
+        if (keyInfo.Key == ConsoleKey.X)
+        {
+          break; 
+        }
       }
 
-      peripherals.Save(-1, config);
     }
 
     static void Main(string[] args)

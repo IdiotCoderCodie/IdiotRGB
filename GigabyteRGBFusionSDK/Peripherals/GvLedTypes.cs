@@ -31,7 +31,7 @@ namespace GigabyteRGBFusionSDK.Peripherals
   {
     Consistent    = 1,
     Pulsing       = 2,
-    GingleFlash   = 3,
+    SingleFlash   = 3,
     DualFlash     = 4,
     Cycling       = 5,
     Ripple        = 6,
