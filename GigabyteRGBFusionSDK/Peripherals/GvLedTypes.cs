@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -42,6 +43,7 @@ namespace GigabyteRGBFusionSDK.Peripherals
   }
 
   [Serializable()]
+  [StructLayout(LayoutKind.Sequential)]
   public struct GvLedConfig
   {
     public GvLedType type;

@@ -8,6 +8,7 @@ using GigabyteRGBFusionSDK.Motherboard;
 using GigabyteRGBFusionSDK.Peripherals;
 using System.IO;
 using System.Xml.Serialization;
+using System.Security.Permissions;
 
 namespace SampleApp
 {
@@ -85,6 +86,27 @@ namespace SampleApp
       }
     }
 
+    static void ApplyConfigFromFile(string path, IGvLed gvLed)
+    {
+      XmlSerializer xmlSerializer = new XmlSerializer(typeof(GvLedConfig));
+
+      FileStream inFile = File.OpenRead(path);
+
+      try
+      {
+        GvLedConfig config = (GvLedConfig)xmlSerializer.Deserialize(inFile);
+        Console.WriteLine("Applying Config to VGA...");
+        gvLed.Save(-1, config);
+      }
+      catch(Exception e)
+      {
+        Console.WriteLine("{0} was Invalid", path);
+      }
+
+      inFile.Close();
+    }
+
+    [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
     static void PeripheralsAPI()
     {
       // Trying to get VGA & Peripherals LED Control API working (GvLedLib.dll)
@@ -154,34 +176,36 @@ namespace SampleApp
         outFile.Close();
       }
 
-      var lastRead = System.DateTime.Now;
+      ApplyConfigFromFile(path, peripherals);
 
-      while(true)
+      // ToDo: Put in another thread.
+      using (FileSystemWatcher watcher = new FileSystemWatcher())
       {
-        // Read.
-        FileStream inFile = File.OpenRead(path);
-        config = (GvLedConfig)xmlSerializer.Deserialize(inFile);
-        inFile.Close();
+        watcher.Path = Path.GetDirectoryName(path);
+        watcher.Filter = Path.GetFileName(path);
+        watcher.NotifyFilter = NotifyFilters.LastWrite // Looks like only Size is working =/
+                             | NotifyFilters.LastAccess
+                             | NotifyFilters.Size;
+                             //| NotifyFilters.FileName
+                             //| NotifyFilters.DirectoryName
 
-        Console.WriteLine("Applying Config to VGA...");
-        peripherals.Save(-1, config);
-
-        Console.WriteLine("Press X to exit or any other key to reload xml");
-        var keyInfo = Console.ReadKey();
-        if (keyInfo.Key == ConsoleKey.X)
+        watcher.Changed += (object source, FileSystemEventArgs e) =>
         {
-          break; 
-        }
-      }
+          ApplyConfigFromFile(e.FullPath, peripherals);
+        };
 
+        Console.WriteLine("Watching file: " + path);
+        watcher.EnableRaisingEvents = true; // Start watching.
+
+        Console.WriteLine("Press Any Key to quit");
+        Console.ReadKey();
+      }
     }
 
     static void Main(string[] args)
     {
       PeripheralsAPI();
-
       //MotherboardControlAPI();
-      Console.ReadKey();
     }
   }
 }
