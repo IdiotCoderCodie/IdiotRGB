@@ -1,26 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GigabyteRGBFusionSDK.Motherboard
 {
+  [Serializable()]
+  [StructLayout(LayoutKind.Sequential)]
+  public struct GLedColour
+  {
+    public GLedColour(byte w, byte r, byte g, byte b)
+    {
+      m_ww = w;
+      m_rr = r;
+      m_gg = g;
+      m_bb = b;
+    }
+
+    public byte m_bb;
+    public byte m_gg;
+    public byte m_rr;
+    public byte m_ww;
+  }
+
   /// <summary>
   /// The structure used to set motherboard LED mode, colour, timing, and other mode-dependent settings.
   /// </summary>
+  [Serializable()]
+  [StructLayout(LayoutKind.Sequential)]
   public struct GLedSetting
   {
-    public byte m_Reserve0;
-    public byte m_LedMode;
-    public byte m_MaxBrightness;
-    public byte m_MinBrightness;
-    public uint m_Colour;
-    public ushort m_Time0;
-    public ushort m_Time1;
-    public ushort m_Time2;
-    public byte m_CtrlVal0;
-    public byte m_CtrlVal1;
+    public byte       m_Reserve0;
+    public GLedMode   m_LedMode;
+    public byte       m_MaxBrightness;  // [0 - 100]
+    public byte       m_MinBrightness;  // [0 - 100]
+    public GLedColour m_Colour;
+    public ushort     m_Time0;          // [ms : 0 - 65535]
+    public ushort     m_Time1;          // [ms : 0 - 65535]
+    public ushort     m_Time2;          // [ms : 0 - 65535]
+    public byte       m_CtrlVal0;       // [0 - 255]
+    public byte       m_CtrlVal1;       // [0 - 255]
   }
 
   /// <summary>
@@ -28,7 +49,7 @@ namespace GigabyteRGBFusionSDK.Motherboard
   /// </summary>
   /// <remarks>DigitalModeX values are reserved for DigitalLED1 and DigitalLED2 LedTypes
   /// </remarks>
-  public enum GLedMode
+  public enum GLedMode : byte
   {
     Null          = 0,
     Pulse         = 1,

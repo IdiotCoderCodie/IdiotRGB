@@ -14,6 +14,34 @@ namespace SampleApp
 {
   class Program
   {
+    static void ApplyGLedConfigFromFile(string path, IGLed gLed, int ledCount)
+    {
+      XmlSerializer xmlSerializer = new XmlSerializer(typeof(GLedSetting));
+
+      FileStream input = File.OpenRead(path);
+
+      try
+      {
+        GLedSetting ledSetting = (GLedSetting)xmlSerializer.Deserialize(input);
+
+        GLedSetting[] array = new GLedSetting[ledCount];
+        for (int i = 0; i < ledCount; i++)
+        {
+          array[i] = ledSetting;
+        }
+
+        gLed.SetLedData(array);
+        gLed.Apply(-1); // I don't think this will work? Unsure but I think we may need "maxDivision" # of GLedSettings.
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine("Invalid input file: " + path);
+        Console.WriteLine("ERROR: " + e.Message);
+      }
+
+      input.Close();
+    }
+
     static void MotherboardControlAPI()
     {
       IGLed gLed = new GLedImpl();
@@ -53,37 +81,83 @@ namespace SampleApp
       {
         nullAllSettings[i].m_LedMode = 0;
       }
-
-      GLedSetting[] ledSettings = new GLedSetting[maxDivision];
-
-      for (var i = 0; i < ledSettings.Length; i++)
-      {
-        ledSettings[i].m_LedMode = (byte)GLedMode.Flash;
-        ledSettings[i].m_MaxBrightness = 100;
-        ledSettings[i].m_MinBrightness = 0;
-        ledSettings[i].m_Colour = 0xFFFFFFFF;
-        ledSettings[i].m_Time0 = 500;
-        ledSettings[i].m_Time1 = 700;
-        ledSettings[i].m_Time2 = 700 * 50;
-        ledSettings[i].m_CtrlVal0 = 50;
-      }
-
       result = gLed.SetLedData(nullAllSettings);
       result = gLed.Apply(-1);
 
-      Console.WriteLine();
-      Console.WriteLine("IDENTIFYING ZONES");
-      for (var i = 0; i < maxDivision; i++)
+      string moboXmlDirPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "//IdiotRGB//RGBFusion/Motherboard";
+      if (!Directory.Exists(moboXmlDirPath))
       {
-        result = gLed.SetLedData(ledSettings);
-        int applyBit = (int)Math.Pow(2, i);
-        result = gLed.Apply(applyBit);
-        Console.WriteLine("Zone " + i + " by Flashing White.");
-        Console.WriteLine("Press ANY KEY to move to next zone.\n");
-        Console.ReadKey();
-        result = gLed.SetLedData(nullAllSettings);
-        result = gLed.Apply(-1);
+        var info = Directory.CreateDirectory(moboXmlDirPath);
       }
+
+      string moboXmlFilePath = moboXmlDirPath + "//GLedType_SampleTest.xml";
+
+      GLedSetting loadedLedSetting = new GLedSetting();
+      XmlSerializer xmlSerializer = new XmlSerializer(typeof(GLedSetting));
+
+      if (!File.Exists(moboXmlFilePath))
+      {
+        FileStream output = File.Create(moboXmlFilePath);
+
+        // Initialize the file with some default GLedSetting
+        loadedLedSetting.m_Colour = new GLedColour(0, 255, 0, 0); // TODO: Check what the format of this is. WWRRGGBB??
+        loadedLedSetting.m_LedMode = GLedMode.Static;
+        loadedLedSetting.m_MaxBrightness = 100;
+
+        xmlSerializer.Serialize(output, loadedLedSetting);
+        output.Close();
+      }
+
+      ApplyGLedConfigFromFile(moboXmlFilePath, gLed, maxDivision);
+
+      using (FileSystemWatcher watcher = new FileSystemWatcher())
+      {
+        watcher.Path = moboXmlDirPath;
+        watcher.Filter = Path.GetFileName(moboXmlFilePath);
+        watcher.NotifyFilter = NotifyFilters.LastWrite
+                             | NotifyFilters.LastAccess
+                             | NotifyFilters.Size;
+        watcher.Changed += (object source, FileSystemEventArgs e) =>
+        {
+          ApplyGLedConfigFromFile(e.FullPath, gLed, maxDivision);
+        };
+
+        Console.WriteLine("Watching file: " + moboXmlFilePath);
+        watcher.EnableRaisingEvents = true;
+
+        Console.WriteLine("Press Any Key to quit");
+        Console.ReadKey();
+      }
+
+      //GLedSetting[] ledSettings = new GLedSetting[maxDivision];
+
+      //for (var i = 0; i < ledSettings.Length; i++)
+      //{
+      //  ledSettings[i].m_LedMode = (byte)GLedMode.Flash;
+      //  ledSettings[i].m_MaxBrightness = 100;
+      //  ledSettings[i].m_MinBrightness = 0;
+      //  ledSettings[i].m_Colour = 0xFFFFFFFF;
+      //  ledSettings[i].m_Time0 = 500;
+      //  ledSettings[i].m_Time1 = 700;
+      //  ledSettings[i].m_Time2 = 700 * 50;
+      //  ledSettings[i].m_CtrlVal0 = 50;
+      //}
+
+      //result = gLed.Apply(-1);
+
+      //Console.WriteLine();
+      //Console.WriteLine("IDENTIFYING ZONES");
+      //for (var i = 0; i < maxDivision; i++)
+      //{
+      //  result = gLed.SetLedData(ledSettings);
+      //  int applyBit = (int)Math.Pow(2, i);
+      //  result = gLed.Apply(applyBit);
+      //  Console.WriteLine("Zone " + i + " by Flashing White.");
+      //  Console.WriteLine("Press ANY KEY to move to next zone.\n");
+      //  Console.ReadKey();
+      //  result = gLed.SetLedData(nullAllSettings);
+      //  result = gLed.Apply(-1);
+      //}
     }
 
     static void ApplyConfigFromFile(string path, IGvLed gvLed)
@@ -204,8 +278,8 @@ namespace SampleApp
 
     static void Main(string[] args)
     {
-      PeripheralsAPI();
-      //MotherboardControlAPI();
+      //PeripheralsAPI();
+      MotherboardControlAPI();
     }
   }
 }
