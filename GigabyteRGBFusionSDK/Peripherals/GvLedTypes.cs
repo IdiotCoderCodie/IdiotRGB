@@ -44,18 +44,36 @@ namespace GigabyteRGBFusionSDK.Peripherals
 
   [Serializable()]
   [StructLayout(LayoutKind.Sequential)]
+  public struct GvLedColour
+  {
+    public GvLedColour(byte w, byte r, byte g, byte b)
+    {
+      m_ww = w;
+      m_rr = r;
+      m_gg = g;
+      m_bb = b;
+    }
+
+    public byte m_bb;
+    public byte m_gg;
+    public byte m_rr;
+    public byte m_ww;
+  }
+
+  [Serializable()]
+  [StructLayout(LayoutKind.Sequential)]
   public struct GvLedConfig
   {
-    public GvLedType type;
-    public int speed;          // 1 - 10
-    public uint time1;         // ms
-    public uint time2;         // ms
-    public uint time3;         // ms
-    public int minBright;      // 1 - 10
-    public int maxBright;      // 1 - 10
-    public uint color;         // 0x00RRGGBB
-    public int angle;          // 1 - 360
-    public bool on;
-    public bool sync;
+    public GvLedType    type;
+    public int          speed;     // 1 - 10
+    public uint         time1;     // ms
+    public uint         time2;     // ms
+    public uint         time3;     // ms
+    public int          minBright; // 1 - 10
+    public int          maxBright; // 1 - 10
+    public GvLedColour  color;     
+    public int          angle;     // 1 - 360
+    public bool         on;
+    public bool         sync;
   }
 }

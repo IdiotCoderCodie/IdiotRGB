@@ -9,6 +9,7 @@ using GigabyteRGBFusionSDK.Peripherals;
 using System.IO;
 using System.Xml.Serialization;
 using System.Security.Permissions;
+using System.Threading;
 
 namespace SampleApp
 {
@@ -42,6 +43,7 @@ namespace SampleApp
       input.Close();
     }
 
+    static volatile bool moboThreadStop = false;
     static void MotherboardControlAPI()
     {
       IGLed gLed = new GLedImpl();
@@ -125,39 +127,11 @@ namespace SampleApp
         Console.WriteLine("Watching file: " + moboXmlFilePath);
         watcher.EnableRaisingEvents = true;
 
-        Console.WriteLine("Press Any Key to quit");
-        Console.ReadKey();
+        while (!moboThreadStop)
+        {
+          Thread.Sleep(5);
+        }
       }
-
-      //GLedSetting[] ledSettings = new GLedSetting[maxDivision];
-
-      //for (var i = 0; i < ledSettings.Length; i++)
-      //{
-      //  ledSettings[i].m_LedMode = (byte)GLedMode.Flash;
-      //  ledSettings[i].m_MaxBrightness = 100;
-      //  ledSettings[i].m_MinBrightness = 0;
-      //  ledSettings[i].m_Colour = 0xFFFFFFFF;
-      //  ledSettings[i].m_Time0 = 500;
-      //  ledSettings[i].m_Time1 = 700;
-      //  ledSettings[i].m_Time2 = 700 * 50;
-      //  ledSettings[i].m_CtrlVal0 = 50;
-      //}
-
-      //result = gLed.Apply(-1);
-
-      //Console.WriteLine();
-      //Console.WriteLine("IDENTIFYING ZONES");
-      //for (var i = 0; i < maxDivision; i++)
-      //{
-      //  result = gLed.SetLedData(ledSettings);
-      //  int applyBit = (int)Math.Pow(2, i);
-      //  result = gLed.Apply(applyBit);
-      //  Console.WriteLine("Zone " + i + " by Flashing White.");
-      //  Console.WriteLine("Press ANY KEY to move to next zone.\n");
-      //  Console.ReadKey();
-      //  result = gLed.SetLedData(nullAllSettings);
-      //  result = gLed.Apply(-1);
-      //}
     }
 
     static void ApplyConfigFromFile(string path, IGvLed gvLed)
@@ -180,6 +154,7 @@ namespace SampleApp
       inFile.Close();
     }
 
+    static volatile bool periphThreadStop = false;
     [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
     static void PeripheralsAPI()
     {
@@ -238,7 +213,7 @@ namespace SampleApp
       {
         config = new GvLedConfig();
         config.on = true;
-        config.color = 0x0000FF00;
+        config.color = new GvLedColour(0, 0, 255, 0);
         config.type = GvLedType.Pulsing;
         config.maxBright = 10;
         config.minBright = 10;
@@ -252,7 +227,6 @@ namespace SampleApp
 
       ApplyConfigFromFile(path, peripherals);
 
-      // ToDo: Put in another thread.
       using (FileSystemWatcher watcher = new FileSystemWatcher())
       {
         watcher.Path = Path.GetDirectoryName(path);
@@ -260,8 +234,6 @@ namespace SampleApp
         watcher.NotifyFilter = NotifyFilters.LastWrite // Looks like only Size is working =/
                              | NotifyFilters.LastAccess
                              | NotifyFilters.Size;
-                             //| NotifyFilters.FileName
-                             //| NotifyFilters.DirectoryName
 
         watcher.Changed += (object source, FileSystemEventArgs e) =>
         {
@@ -271,15 +243,31 @@ namespace SampleApp
         Console.WriteLine("Watching file: " + path);
         watcher.EnableRaisingEvents = true; // Start watching.
 
-        Console.WriteLine("Press Any Key to quit");
-        Console.ReadKey();
+        while (!periphThreadStop)
+        {
+          Thread.Sleep(5);
+        }
       }
     }
 
     static void Main(string[] args)
     {
-      //PeripheralsAPI();
-      MotherboardControlAPI();
+      ThreadStart periphThreadRef = new ThreadStart(PeripheralsAPI);
+      Thread periphThread = new Thread(periphThreadRef);
+      periphThread.Start();
+
+      ThreadStart moboThreadRef = new ThreadStart(MotherboardControlAPI);
+      Thread moboThread = new Thread(moboThreadRef);
+      moboThread.Start();
+
+      Console.WriteLine("Press Any Key to quit.");
+      Console.ReadKey();
+
+      periphThreadStop = true;
+      moboThreadStop = true;
+
+      periphThread.Join();
+      moboThread.Join();
     }
   }
 }
