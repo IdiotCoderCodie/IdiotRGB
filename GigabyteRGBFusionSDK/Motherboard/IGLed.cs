@@ -38,8 +38,8 @@ namespace GigabyteRGBFusionSDK.Motherboard
     /// Pointer to a byte array that receives the LED layout on the motherboard.
     /// </param>
     /// <param name="arraySize"></param>
-    /// <returns>On SUCCESS: 0. Else 0x10DD : FAIL, 0x7A : INSUFFICIENT BUFFER, 0x32 NOT_SUPPORTED</returns>
-    public abstract uint GetLedLayout(byte[] array, int arraySize);
+    /// <returns>True on success. False otherwise.</returns>
+    public abstract bool GetLedLayout(List<GLedType> ledLayout);
 
     /// <summary>
     /// Writes settings into the MCU. Note: The settings will not apply until <c>Apply</c> is called.

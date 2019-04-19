@@ -38,9 +38,24 @@ namespace GigabyteRGBFusionSDK.Motherboard
 
     [DllImport("GLedApi ", EntryPoint = "dllexp_GetLedLayout", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
     private static extern uint dllexp_GetLedLayout(byte[] array, int arraySize);
-    public override uint GetLedLayout(byte[] array, int arraySize)
+    public override bool GetLedLayout(List<GLedType> ledLayout)
     {
-      return dllexp_GetLedLayout(array, arraySize);
+      int maxDivision = GetMaxDivision();
+      byte[] layoutByteArray = new byte[maxDivision];
+
+      uint res = dllexp_GetLedLayout(layoutByteArray, layoutByteArray.Length);
+
+      if (res != 0)
+      {
+        return false;
+      }
+
+      foreach(var led in layoutByteArray)
+      {
+        ledLayout.Add((GLedType)led);
+      }
+
+      return true;
     }
 
     [DllImport("GLedApi ", EntryPoint = "dllexp_SetLedData", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]

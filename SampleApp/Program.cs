@@ -10,11 +10,24 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Security.Permissions;
 using System.Threading;
+using IdiotRGB;
 
 namespace SampleApp
 {
   class Program
   {
+    static void TryOutRGBFusionManager()
+    {
+      RGBFusionManager rgbFusionManager = new RGBFusionManager();
+      rgbFusionManager.Initialize();
+
+      GLedSetting setting = new GLedSetting();
+      setting.m_LedMode = GLedMode.Static;
+      setting.m_Colour = new GLedColour(255, 255, 255, 255);
+      setting.m_MaxBrightness = 100;
+      rgbFusionManager.SetAllLeds(ref setting);
+    }
+
     static void ApplyGLedConfigFromFile(string path, IGLed gLed, int ledCount)
     {
       XmlSerializer xmlSerializer = new XmlSerializer(typeof(GLedSetting));
@@ -67,14 +80,13 @@ namespace SampleApp
       int maxDivision = gLed.GetMaxDivision();
       Console.WriteLine("Max LED zones supported: " + maxDivision);
 
-      byte[] ledLayout = new byte[maxDivision];
-      result = gLed.GetLedLayout(ledLayout, ledLayout.Length);
+      List<GLedType> ledTypes = new List<GLedType>();
+      gLed.GetLedLayout(ledTypes);
 
       var li = 0;
-      foreach (var led in ledLayout)
+      foreach (var led in ledTypes)
       {
-        GLedType ledType = (GLedType)led;
-        Console.WriteLine("Zone " + li + " Led: " + ledType.ToString());
+        Console.WriteLine("Zone " + li + " Led: " + led.ToString());
         ++li;
       }
 
@@ -252,6 +264,10 @@ namespace SampleApp
 
     static void Main(string[] args)
     {
+      TryOutRGBFusionManager();
+      return;
+
+
       ThreadStart periphThreadRef = new ThreadStart(PeripheralsAPI);
       Thread periphThread = new Thread(periphThreadRef);
       periphThread.Start();

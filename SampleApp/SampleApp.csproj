@@ -94,6 +94,10 @@
       <Project>{ea34fdfc-69cd-4c01-9e8d-d1fe7e78a829}</Project>
       <Name>GigabyteRGBFusionSDKWrapper</Name>
     </ProjectReference>
+    <ProjectReference Include="..\IdiotRGB\IdiotRGB.csproj">
+      <Project>{422fd130-14e3-4414-9d20-21f895baa5e1}</Project>
+      <Name>IdiotRGB</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

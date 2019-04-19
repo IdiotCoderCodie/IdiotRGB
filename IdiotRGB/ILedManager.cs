@@ -66,11 +66,11 @@ namespace IdiotRGB
     public IdiLedMode Mode { get; set; }
   }
 
-  internal abstract class ILedManager
+  public abstract class ILedManager
   {
     public int LedCount
     {
-      get { return m_leds.Count; }
+      get { return _leds.Count; }
     }
 
     public abstract bool Initialize();
@@ -80,6 +80,6 @@ namespace IdiotRGB
     protected abstract bool Sync();
     protected abstract Task<bool> SyncAsync();
 
-    private List<IdiLed> m_leds = new List<IdiLed>();
+    private List<IdiLed> _leds = new List<IdiLed>();
   }
 }
