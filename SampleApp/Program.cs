@@ -146,7 +146,7 @@ namespace SampleApp
         Console.WriteLine("Applying Config to VGA...");
         gvLed.Save(-1, config);
       }
-      catch(Exception e)
+      catch(Exception)
       {
         Console.WriteLine("{0} was Invalid", path);
       }

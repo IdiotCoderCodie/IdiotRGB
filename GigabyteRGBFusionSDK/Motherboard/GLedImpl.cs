@@ -23,21 +23,21 @@ namespace GigabyteRGBFusionSDK.Motherboard
     }
 
     [DllImport("GLedApi ", EntryPoint = "dllexp_InitAPI", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-    public static extern uint dllexp_InitAPI();
+    private static extern uint dllexp_InitAPI();
     public override uint InitAPI()
     {
       return dllexp_InitAPI();
     }
 
     [DllImport("GLedApi ", EntryPoint = "dllexp_GetMaxDivision", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-    public static extern int dllexp_GetMaxDivision();
+    private static extern int dllexp_GetMaxDivision();
     public override int GetMaxDivision()
     {
       return dllexp_GetMaxDivision();
     }
 
     [DllImport("GLedApi ", EntryPoint = "dllexp_GetLedLayout", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-    public static extern uint dllexp_GetLedLayout(byte[] array, int arraySize);
+    private static extern uint dllexp_GetLedLayout(byte[] array, int arraySize);
     public override uint GetLedLayout(byte[] array, int arraySize)
     {
       return dllexp_GetLedLayout(array, arraySize);
@@ -51,21 +51,21 @@ namespace GigabyteRGBFusionSDK.Motherboard
     }
 
     [DllImport("GLedApi ", EntryPoint = "dllexp_Apply", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-    public static extern uint dllexp_Apply(int applyBit);
+    private static extern uint dllexp_Apply(int applyBit);
     public override uint Apply(int applyBit)
     {
       return dllexp_Apply(applyBit);
     }
 
     [DllImport("GLedApi ", EntryPoint = "dllexp_BeatInput", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-    public static extern uint dllexp_BeatInput(int iCtrl);
+    private static extern uint dllexp_BeatInput(int iCtrl);
     public override uint BeatInput(int iCtrl)
     {
       return dllexp_BeatInput(iCtrl);
     }
 
     [DllImport("GLedApi ", EntryPoint = "dllexp_IT8295_Reset", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode)]
-    public static extern uint dllexp_IT8295_Reset();
+    private static extern uint dllexp_IT8295_Reset();
     public override uint Reset()
     {
       return dllexp_IT8295_Reset();
