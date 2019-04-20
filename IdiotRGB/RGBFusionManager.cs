@@ -18,8 +18,10 @@ namespace IdiotRGB
     }
 
     public override bool Initialize()
-    {     
-      return InitializeMobo() || InitializePeriph();
+    {
+      bool success = InitializeMobo();
+      success |= InitializePeriph();
+      return success;
     }
 
     public async override Task<bool> InitializeAsync() 
@@ -41,6 +43,15 @@ namespace IdiotRGB
         return false;
 
       return true;
+    }
+
+    public override void SetAllLeds(ref IdiLed idiLed)
+    {
+      GvLedConfig toGvLed = IdiLedToGvLed(ref idiLed);
+      GLedSetting toGLed = IdiLedToGLed(ref idiLed);
+
+      SetAllPeriphLeds(ref toGvLed);
+      SetAllMoboLeds(ref toGLed);
     }
 
     protected override bool Sync()
@@ -73,7 +84,7 @@ namespace IdiotRGB
       // Start by turning all the Leds OFF.
       GLedSetting nullLed = new GLedSetting();
       nullLed.m_LedMode = GLedMode.Null;
-      SetAllLeds(ref nullLed);
+      SetAllMoboLeds(ref nullLed);
       
       return true;
     }
@@ -89,13 +100,14 @@ namespace IdiotRGB
         return false;
       }
 
-      // TODO: Start by turning all Leds OFF.
+      GvLedConfig nullLedConfig = new GvLedConfig();
+      nullLedConfig.on = false;
+      SetAllPeriphLeds(ref nullLedConfig);
 
       return true;
     }
 
-    // TODO: This should be private... public one should be inherited from ILedManager and take the IdiLed type.
-    public void SetAllLeds(ref GLedSetting setting)
+    private void SetAllMoboLeds(ref GLedSetting setting)
     {
       for (int i = 0; i < _gLedSettings.Count; ++i)
       {
@@ -104,10 +116,63 @@ namespace IdiotRGB
       ApplyLedSettings();
     }
 
+    private void SetAllPeriphLeds(ref GvLedConfig ledConfig)
+    {
+      _gvLed.Save(-1, ledConfig);
+    }
+
     private void ApplyLedSettings()
     {
       uint res = _gLed.SetLedData(_gLedSettings.ToArray());
       res = _gLed.Apply(-1);
+    }
+
+    private GvLedConfig IdiLedToGvLed(ref IdiLed idiLed)
+    {
+      GvLedConfig gvLedCfg = new GvLedConfig();
+      gvLedCfg.color = new GvLedColour(idiLed.Colour.White, idiLed.Colour.Red, idiLed.Colour.Green, idiLed.Colour.Blue);
+
+      switch(idiLed.Mode)
+      {
+        case IdiLedMode.STATIC:
+          gvLedCfg.type = GvLedType.Consistent;
+          break;
+        case IdiLedMode.FLASH:
+          gvLedCfg.type = GvLedType.SingleFlash;
+          break;
+        default:
+          throw new NotImplementedException("Missing implementation of IdiLed mode " + idiLed.Mode.ToString() + " in RGBFusionManager.\n");
+      }
+
+      // TODO: Add these to IdiLed!
+      gvLedCfg.maxBright = 10;
+      gvLedCfg.minBright = 10;
+      gvLedCfg.on = true; 
+
+      return gvLedCfg;
+    }
+
+    private GLedSetting IdiLedToGLed(ref IdiLed idiLed)
+    {
+      GLedSetting gLedSetting = new GLedSetting();
+      gLedSetting.m_Colour = new GLedColour(idiLed.Colour.White, idiLed.Colour.Red, idiLed.Colour.Green, idiLed.Colour.Blue);
+
+      switch (idiLed.Mode)
+      {
+        case IdiLedMode.STATIC:
+          gLedSetting.m_LedMode = GLedMode.Static;
+          break;
+        case IdiLedMode.FLASH:
+          gLedSetting.m_LedMode = GLedMode.Flash;
+          break;
+        default:
+          throw new NotImplementedException("Missing implementation of IdiLed mode " + idiLed.Mode.ToString() + " in RGBFusionManager.\n");
+      }
+
+      gLedSetting.m_MaxBrightness = 100;
+      gLedSetting.m_MinBrightness = 100;
+
+      return gLedSetting;
     }
 
     private GLedImpl _gLed;

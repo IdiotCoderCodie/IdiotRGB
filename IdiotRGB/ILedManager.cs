@@ -8,10 +8,18 @@ namespace IdiotRGB
 {
   public struct IdiLedColour
   {
-    public float Red;
-    public float Green;
-    public float Blue;
-    public float White;
+    public IdiLedColour(byte r, byte g, byte b, byte w)
+    {
+      Red = r;
+      Green = g;
+      Blue = b;
+      White = w;
+    }
+
+    public byte Red;
+    public byte Green;
+    public byte Blue;
+    public byte White;
   }
 
   public enum IdiLedMode
@@ -75,6 +83,8 @@ namespace IdiotRGB
 
     public abstract bool Initialize();
     public abstract Task<bool> InitializeAsync();
+
+    public abstract void SetAllLeds(ref IdiLed idiLed);
 
     // Syncs Leds with the driver/hardware
     protected abstract bool Sync();

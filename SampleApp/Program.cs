@@ -21,11 +21,10 @@ namespace SampleApp
       RGBFusionManager rgbFusionManager = new RGBFusionManager();
       rgbFusionManager.Initialize();
 
-      GLedSetting setting = new GLedSetting();
-      setting.m_LedMode = GLedMode.Static;
-      setting.m_Colour = new GLedColour(255, 255, 255, 255);
-      setting.m_MaxBrightness = 100;
-      rgbFusionManager.SetAllLeds(ref setting);
+      IdiLed idiLed = new IdiLed();
+      idiLed.Colour = new IdiLedColour(255, 0, 0, 0);
+      idiLed.Mode = IdiLedMode.STATIC;
+      rgbFusionManager.SetAllLeds(ref idiLed);
     }
 
     static void ApplyGLedConfigFromFile(string path, IGLed gLed, int ledCount)
