@@ -23,7 +23,12 @@ namespace SampleApp
 
       IdiLed idiLed = new IdiLed();
       idiLed.Colour = new IdiLedColour(255, 0, 0, 0);
-      idiLed.Mode = IdiLedMode.STATIC;
+      idiLed.Mode = IdiLedMode.FLASH;
+      idiLed.MinBrightness = 0;
+      idiLed.MaxBrightness = 100;
+      idiLed.TimeMs0 = 500;
+      idiLed.TimeMs1 = 500;
+      idiLed.Enabled = true;
       rgbFusionManager.SetAllLeds(ref idiLed);
     }
 
@@ -44,7 +49,7 @@ namespace SampleApp
         }
 
         gLed.SetLedData(array);
-        gLed.Apply(-1); // I don't think this will work? Unsure but I think we may need "maxDivision" # of GLedSettings.
+        gLed.Apply(-1);
       }
       catch (Exception e)
       {
@@ -113,7 +118,7 @@ namespace SampleApp
         FileStream output = File.Create(moboXmlFilePath);
 
         // Initialize the file with some default GLedSetting
-        loadedLedSetting.m_Colour = new GLedColour(0, 255, 0, 0); // TODO: Check what the format of this is. WWRRGGBB??
+        loadedLedSetting.m_Colour = new GLedColour(0, 255, 0, 0);
         loadedLedSetting.m_LedMode = GLedMode.Static;
         loadedLedSetting.m_MaxBrightness = 100;
 

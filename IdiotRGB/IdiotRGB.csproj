@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IdiLed.cs" />
+    <Compile Include="IdiLedColour.cs" />
     <Compile Include="ILedManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RGBFusionManager.cs" />

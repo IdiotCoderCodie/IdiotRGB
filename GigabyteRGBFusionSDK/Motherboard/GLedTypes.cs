@@ -19,6 +19,11 @@ namespace GigabyteRGBFusionSDK.Motherboard
       m_bb = b;
     }
 
+    public GLedColour(byte v)
+      : this(v, v, v, v)
+    {  
+    }
+
     public byte m_bb;
     public byte m_gg;
     public byte m_rr;

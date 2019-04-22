@@ -17,14 +17,22 @@ namespace IdiotRGB
       _gLedSettings = new List<GLedSetting>();
     }
 
-    public override bool Initialize()
+    public int LedCount
+    {
+      get
+      {
+        return _gLedSettings.Count;
+      }
+    }
+
+    public bool Initialize()
     {
       bool success = InitializeMobo();
       success |= InitializePeriph();
       return success;
     }
 
-    public async override Task<bool> InitializeAsync() 
+    public async Task<bool> InitializeAsync() 
     {
       List<Task<bool>> taskList = new List<Task<bool>>();
 
@@ -45,23 +53,13 @@ namespace IdiotRGB
       return true;
     }
 
-    public override void SetAllLeds(ref IdiLed idiLed)
+    public void SetAllLeds(ref IdiLed idiLed)
     {
       GvLedConfig toGvLed = IdiLedToGvLed(ref idiLed);
       GLedSetting toGLed = IdiLedToGLed(ref idiLed);
 
       SetAllPeriphLeds(ref toGvLed);
       SetAllMoboLeds(ref toGLed);
-    }
-
-    protected override bool Sync()
-    {
-      throw new NotImplementedException();
-    }
-
-    protected override Task<bool> SyncAsync()
-    {
-      throw new NotImplementedException();
     }
 
     private bool InitializeMobo()
@@ -113,7 +111,7 @@ namespace IdiotRGB
       {
         _gLedSettings[i] = setting;
       }
-      ApplyLedSettings();
+      ApplyGLedSettings();
     }
 
     private void SetAllPeriphLeds(ref GvLedConfig ledConfig)
@@ -121,7 +119,7 @@ namespace IdiotRGB
       _gvLed.Save(-1, ledConfig);
     }
 
-    private void ApplyLedSettings()
+    private void ApplyGLedSettings()
     {
       uint res = _gLed.SetLedData(_gLedSettings.ToArray());
       res = _gLed.Apply(-1);
@@ -130,7 +128,7 @@ namespace IdiotRGB
     private GvLedConfig IdiLedToGvLed(ref IdiLed idiLed)
     {
       GvLedConfig gvLedCfg = new GvLedConfig();
-      gvLedCfg.color = new GvLedColour(idiLed.Colour.White, idiLed.Colour.Red, idiLed.Colour.Green, idiLed.Colour.Blue);
+      gvLedCfg.on = idiLed.Enabled;
 
       switch(idiLed.Mode)
       {
@@ -144,10 +142,15 @@ namespace IdiotRGB
           throw new NotImplementedException("Missing implementation of IdiLed mode " + idiLed.Mode.ToString() + " in RGBFusionManager.\n");
       }
 
-      // TODO: Add these to IdiLed!
-      gvLedCfg.maxBright = 10;
-      gvLedCfg.minBright = 10;
-      gvLedCfg.on = true; 
+      gvLedCfg.color = new GvLedColour(idiLed.Colour.White, idiLed.Colour.Red, idiLed.Colour.Green, idiLed.Colour.Blue);
+      gvLedCfg.maxBright = idiLed.MaxBrightness / 10;
+      gvLedCfg.minBright = idiLed.MinBrightness / 10;
+
+      // Not sure what the format of these time values are... can't find information on it in samples of in the docs.
+      gvLedCfg.time1 = idiLed.TimeMs0;
+      gvLedCfg.time2 = (ushort)(idiLed.TimeMs0 + idiLed.TimeMs1);
+      gvLedCfg.time3 = 255;
+      gvLedCfg.speed = 1; // Does this solely affect the "flash" speed? 
 
       return gvLedCfg;
     }
@@ -155,7 +158,7 @@ namespace IdiotRGB
     private GLedSetting IdiLedToGLed(ref IdiLed idiLed)
     {
       GLedSetting gLedSetting = new GLedSetting();
-      gLedSetting.m_Colour = new GLedColour(idiLed.Colour.White, idiLed.Colour.Red, idiLed.Colour.Green, idiLed.Colour.Blue);
+      gLedSetting.m_LedMode = GLedMode.Null;
 
       switch (idiLed.Mode)
       {
@@ -169,8 +172,22 @@ namespace IdiotRGB
           throw new NotImplementedException("Missing implementation of IdiLed mode " + idiLed.Mode.ToString() + " in RGBFusionManager.\n");
       }
 
-      gLedSetting.m_MaxBrightness = 100;
-      gLedSetting.m_MinBrightness = 100;
+      if (idiLed.Enabled)
+        gLedSetting.m_Colour = new GLedColour(idiLed.Colour.White, idiLed.Colour.Red, idiLed.Colour.Green, idiLed.Colour.Blue);
+      else
+        gLedSetting.m_Colour = new GLedColour(0);
+
+      gLedSetting.m_MinBrightness = idiLed.MinBrightness;
+      gLedSetting.m_MaxBrightness = idiLed.MaxBrightness;
+
+      // time0 == flash OFF time.
+      // time1 =  time0 + flash ON time
+      // time2 = 0 (infinite?)
+      gLedSetting.m_Time0 = idiLed.TimeMs0;
+      gLedSetting.m_Time1 = (ushort)(idiLed.TimeMs0 + idiLed.TimeMs1);
+      gLedSetting.m_CtrlVal0 = 10;
+      gLedSetting.m_Time2 = (ushort)(gLedSetting.m_CtrlVal0 * gLedSetting.m_Time1);
+      
 
       return gLedSetting;
     }
