@@ -23,13 +23,36 @@ namespace SampleApp
 
       IdiLed idiLed = new IdiLed();
       idiLed.Colour = new IdiLedColour(255, 0, 0, 0);
-      idiLed.Mode = IdiLedMode.FLASH;
-      idiLed.MinBrightness = 0;
+      idiLed.Mode = IdiLedMode.STATIC;
+      idiLed.MinBrightness = 100;
       idiLed.MaxBrightness = 100;
-      idiLed.TimeMs0 = 500;
-      idiLed.TimeMs1 = 500;
+      //idiLed.TimeMs0 = 500;
+      //idiLed.TimeMs1 = 500;
       idiLed.Enabled = true;
-      rgbFusionManager.SetAllLeds(ref idiLed);
+
+      IdiLed idiLed1 = new IdiLed();
+      idiLed1.Colour = new IdiLedColour(0, 255, 0, 0);
+      idiLed1.Mode = IdiLedMode.STATIC;
+      idiLed1.MinBrightness = idiLed1.MaxBrightness = 100;
+      idiLed1.Enabled = true;
+
+      IdiLed idiLed2 = new IdiLed();
+      idiLed2.Colour = new IdiLedColour(255, 255, 255, 255);
+      idiLed2.Mode = IdiLedMode.STATIC;
+      idiLed2.MinBrightness = idiLed2.MaxBrightness = 100;
+      idiLed2.Enabled = true;
+
+      const int period = 500;
+
+      while (true)
+      {
+        rgbFusionManager.SetAllLeds(ref idiLed);
+        Thread.Sleep(period);
+        rgbFusionManager.SetAllLeds(ref idiLed1);
+        Thread.Sleep(period);
+        rgbFusionManager.SetAllLeds(ref idiLed2);
+        Thread.Sleep(period);
+      }
     }
 
     static void ApplyGLedConfigFromFile(string path, IGLed gLed, int ledCount)
