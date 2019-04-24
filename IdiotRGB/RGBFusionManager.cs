@@ -55,11 +55,17 @@ namespace IdiotRGB
 
     public void SetAllLeds(ref IdiLed idiLed)
     {
-      GvLedConfig toGvLed = IdiLedToGvLed(ref idiLed);
-      GLedSetting toGLed = IdiLedToGLed(ref idiLed);
+      SetAllPeriphLeds(ref idiLed);
+      SetAllMoboLeds(ref idiLed);
+    }
 
-      SetAllPeriphLeds(ref toGvLed);
-      SetAllMoboLeds(ref toGLed);
+    public async Task SetAllLedsAsync(IdiLed idiLed)
+    {
+      List<Task> taskList = new List<Task>();
+      taskList.Add(Task.Run(() => SetAllPeriphLeds(ref idiLed)));
+      taskList.Add(Task.Run(() => SetAllMoboLeds(ref idiLed)));
+
+      await Task.WhenAll(taskList);
     }
 
     private bool InitializeMobo()
@@ -105,13 +111,25 @@ namespace IdiotRGB
       return true;
     }
 
-    private void SetAllMoboLeds(ref GLedSetting setting)
+    private void SetAllMoboLeds(ref IdiLed idiLed)
+    {
+      GLedSetting gledSetting = IdiLedToGLed(ref idiLed);
+      SetAllMoboLeds(ref gledSetting);
+    }
+
+    private void SetAllMoboLeds(ref GLedSetting ledSetting)
     {
       for (int i = 0; i < _gLedSettings.Count; ++i)
       {
-        _gLedSettings[i] = setting;
+        _gLedSettings[i] = ledSetting;
       }
       ApplyGLedSettings();
+    }
+
+    private void SetAllPeriphLeds(ref IdiLed idiLed)
+    {
+      GvLedConfig ledConfig = IdiLedToGvLed(ref idiLed);
+      SetAllPeriphLeds(ref ledConfig);
     }
 
     private void SetAllPeriphLeds(ref GvLedConfig ledConfig)

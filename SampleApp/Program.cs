@@ -46,12 +46,13 @@ namespace SampleApp
 
       while (true)
       {
+        List<Task> taskList = new List<Task>();
         rgbFusionManager.SetAllLeds(ref idiLed);
         Thread.Sleep(period);
-        rgbFusionManager.SetAllLeds(ref idiLed1);
+        taskList.Add(rgbFusionManager.SetAllLedsAsync(idiLed1));
         Thread.Sleep(period);
-        rgbFusionManager.SetAllLeds(ref idiLed2);
-        Thread.Sleep(period);
+        taskList.Add(rgbFusionManager.SetAllLedsAsync(idiLed2));
+        Thread.Sleep(period);        
       }
     }
 
