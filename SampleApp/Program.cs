@@ -16,7 +16,7 @@ namespace SampleApp
 {
   class Program
   {
-    static void TryOutRGBFusionManager()
+    static async Task TryOutRGBFusionManager()
     {
       RGBFusionManager rgbFusionManager = new RGBFusionManager();
       rgbFusionManager.Initialize();
@@ -44,16 +44,36 @@ namespace SampleApp
 
       const int period = 500;
 
-      while (true)
+      var tokenSource = new CancellationTokenSource();
+      CancellationToken cancelTok = tokenSource.Token;
+
+      Task loopTask = Task.Run(() =>
       {
-        List<Task> taskList = new List<Task>();
-        rgbFusionManager.SetAllLeds(ref idiLed);
-        Thread.Sleep(period);
-        taskList.Add(rgbFusionManager.SetAllLedsAsync(idiLed1));
-        Thread.Sleep(period);
-        taskList.Add(rgbFusionManager.SetAllLedsAsync(idiLed2));
-        Thread.Sleep(period);        
+        while (true)
+        {
+          if (cancelTok.IsCancellationRequested)
+          {
+            break;
+          }
+          List<Task> taskList = new List<Task>();
+          rgbFusionManager.SetAllLeds(ref idiLed);
+          Thread.Sleep(period);
+          rgbFusionManager.SetAllLeds(ref idiLed1);
+          Thread.Sleep(period);
+          rgbFusionManager.SetAllLeds(ref idiLed2);
+          Thread.Sleep(period);
+        }
+      }, cancelTok);
+
+      Console.WriteLine("Press Q to quit.");
+      while(Console.ReadKey().Key != ConsoleKey.Q)
+      {
+        Thread.Sleep(100);
       }
+
+      tokenSource.Cancel();
+
+      await loopTask; 
     }
 
     static void ApplyGLedConfigFromFile(string path, IGLed gLed, int ledCount)
@@ -292,7 +312,7 @@ namespace SampleApp
 
     static void Main(string[] args)
     {
-      TryOutRGBFusionManager();
+      TryOutRGBFusionManager().Wait();
       return;
 
 
